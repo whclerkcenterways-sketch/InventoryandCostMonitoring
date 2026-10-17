@@ -1,0 +1,3007 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory & Cost Monitoring System</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #243247;
+    }
+
+    header {
+      background: #020202;
+      color: white;
+      padding: 20px 28px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #d5e4f5;
+    }
+
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 90px);
+    }
+
+    aside {
+      width: 230px;
+      background: #fff;
+      padding: 20px 12px;
+      border-right: 1px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    .menu-title {
+      margin: 0 10px 12px;
+      color: #777;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .menu-button {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 6px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #34445a;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .menu-button:hover,
+    .menu-button.active {
+      background: #e4edfa;
+      color: #174a85;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      min-width: 0;
+      padding: 28px;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .page-heading h2 {
+      margin: 0 0 7px;
+    }
+
+    .page-heading p {
+      margin: 0;
+      color: #66758a;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #e0e5ec;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .panel-heading {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e0e5ec;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-heading h3 {
+      margin: 0;
+    }
+
+    .panel-body {
+      padding: 20px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .btn {
+      border: 1px solid #ccd5e0;
+      border-radius: 6px;
+      background: white;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1f5da8;
+      color: white;
+      border-color: #1f5da8;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search {
+      width: min(360px, 100%);
+      padding: 10px 12px;
+      border: 1px solid #ccd5e0;
+      border-radius: 6px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+    }
+
+    th,
+    td {
+      padding: 13px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e6eaf0;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f5f7fa;
+      color: #5d6a7b;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .status-active {
+      background: #d9f5e7;
+      color: #137447;
+    }
+
+    .status-hold {
+      background: #fff0d6;
+      color: #986000;
+    }
+
+    .status-completed {
+      background: #e2e8f0;
+      color: #475569;
+    }
+
+    .status-low {
+      background: #fff0d6;
+      color: #986000;
+    }
+
+    .status-out {
+      background: #fff0f0;
+      color: #a12626;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: #718096;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 700px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 10px;
+    }
+
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #e0e5ec;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+    }
+
+    .close-button {
+      border: none;
+      background: transparent;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 22px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #526174;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid #ccd5e0;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .field-full {
+      grid-column: 1 / -1;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 16px 22px;
+      border-top: 1px solid #e0e5ec;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #fff0f0;
+      color: #a12626;
+      font-size: 13px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: white;
+      border: 1px solid #e0e5ec;
+      border-radius: 9px;
+      padding: 18px;
+    }
+
+    .summary-card p {
+      margin: 0 0 10px;
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .summary-card strong {
+      font-size: 24px;
+    }
+
+    .cost-summary {
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
+
+    .cost-summary .summary-card:last-child {
+      border-color: #1f5da8;
+      background: #eef5ff;
+    }
+
+    .cost-data-note {
+      margin: -8px 0 18px;
+      color: #986000;
+      font-size: 13px;
+    }
+
+    .cost-chart {
+      padding: 20px;
+    }
+
+    .cost-chart-row {
+      padding: 12px 0;
+      border-bottom: 1px solid #e6eaf0;
+    }
+
+    .cost-chart-row:last-child {
+      border-bottom: 0;
+    }
+
+    .cost-chart-title {
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .cost-chart-bar {
+      display: flex;
+      height: 22px;
+      margin: 5px 0;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #f1f4f8;
+    }
+
+    .cost-chart-segment {
+      min-width: 0;
+      height: 100%;
+    }
+
+    .cost-chart-warehouse {
+      background: #1f5da8;
+    }
+
+    .cost-chart-direct {
+      background: #2a9d70;
+    }
+
+    .cost-chart-pullout {
+      background: #d97706;
+    }
+
+    .cost-chart-legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 0 20px 18px;
+      color: #526174;
+      font-size: 12px;
+    }
+
+    .cost-chart-legend span::before {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+      border-radius: 2px;
+      content: "";
+    }
+
+    .cost-chart-legend .legend-warehouse::before {
+      background: #1f5da8;
+    }
+
+    .cost-chart-legend .legend-direct::before {
+      background: #2a9d70;
+    }
+
+    .cost-chart-legend .legend-pullout::before {
+      background: #d97706;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+
+      main {
+        padding: 18px 12px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field-full {
+        grid-column: auto;
+      }
+    }
+
+    .gatepass-print {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: 8.5in 7in;
+        margin: 0.25in;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      #gatepassPrint,
+      #gatepassPrint * {
+        visibility: visible !important;
+      }
+
+      #gatepassPrint {
+        display: block !important;
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        color: #111;
+        background: #fff;
+        font: 9pt Arial, sans-serif;
+      }
+
+      .gatepass-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid #111;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+      }
+
+      .gatepass-header h1 {
+        margin: 0;
+        font-size: 15pt;
+      }
+
+      .gatepass-header p,
+      .gatepass-meta p,
+      .gatepass-signatures p {
+        margin: 3px 0;
+      }
+
+      .gatepass-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3px 16px;
+        margin-bottom: 8px;
+      }
+
+      .gatepass-table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: normal;
+      }
+
+      .gatepass-table th,
+      .gatepass-table td {
+        border: 1px solid #333;
+        padding: 4px 6px;
+        font-size: 8pt;
+      }
+
+      .gatepass-table th {
+        background: #eee !important;
+        color: #111 !important;
+      }
+
+      .gatepass-notes {
+        margin: 8px 0;
+        min-height: 20px;
+      }
+
+      .gatepass-signatures {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-top: 24px;
+      }
+
+      .gatepass-signature {
+        border-top: 1px solid #333;
+        padding-top: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Inventory & Cost Monitoring System</h1>
+    <p>Construction Materials and Project Monitoring</p>
+  </header>
+
+  <div class="layout">
+
+    <aside>
+      <p class="menu-title">Main Menu</p>
+
+      <button class="menu-button active" data-page="dashboard">
+        Dashboard
+      </button>
+
+      <button class="menu-button" data-page="projects">
+        Project List
+      </button>
+
+      <button class="menu-button" data-page="inventory">
+        Inventory
+      </button>
+
+      <button class="menu-button" data-page="transactions">
+        Issuance & Receiving
+      </button>
+
+      <button class="menu-button" data-page="costs">
+        Cost Monitoring
+      </button>
+
+      <button class="menu-button" data-page="reports">
+        Reports
+      </button>
+    </aside>
+
+    <main>
+      <section id="dashboardPage">
+        <div class="page-heading">
+          <div>
+            <h2>Dashboard</h2>
+            <p>Welcome to your Inventory & Cost Monitoring System.</p>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <p>Total Projects</p>
+            <strong id="dashboardProjectCount">0</strong>
+          </div>
+
+          <div class="summary-card">
+            <p>Active Projects</p>
+            <strong id="dashboardActiveCount">0</strong>
+          </div>
+
+          <div class="summary-card">
+            <p>Total Approved Budget</p>
+            <strong id="dashboardBudget">₱0.00</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            Start by opening <strong>Project List</strong> in the main menu
+            and adding your construction projects.
+          </div>
+        </div>
+      </section>
+
+      <section id="projectsPage" class="hidden">
+        <div class="page-heading">
+          <div>
+            <h2>Project List</h2>
+            <p>Master list of construction projects.</p>
+          </div>
+
+          <button class="btn btn-primary" id="addProjectButton">
+            + Add Project
+          </button>
+        </div>
+
+        <div id="messageArea"></div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <h3>Registered Projects</h3>
+
+            <div class="toolbar">
+              <input
+                type="search"
+                id="projectSearch"
+                class="search"
+                placeholder="Search project code, name, engineer..."
+              >
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Project Code</th>
+                  <th>Project Name</th>
+                  <th>Category</th>
+                  <th>Location</th>
+                  <th>Project Engineer</th>
+                  <th>Approved Budget</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+
+              <tbody id="projectTableBody">
+                <tr>
+                  <td colspan="10" class="empty">
+                    No projects registered yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="inventoryPage" class="hidden">
+        <div class="page-heading">
+          <div>
+            <h2>Inventory</h2>
+            <p>Construction materials and stock levels.</p>
+          </div>
+
+          <button class="btn btn-primary" id="addInventoryButton">
+            + Add Material
+          </button>
+        </div>
+
+        <div id="inventoryMessageArea"></div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <p>Materials</p>
+            <strong id="inventoryMaterialCount">0</strong>
+          </div>
+          <div class="summary-card">
+            <p>Low Stock</p>
+            <strong id="inventoryLowCount">0</strong>
+          </div>
+          <div class="summary-card">
+            <p>Out of Stock</p>
+            <strong id="inventoryOutCount">0</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <h3>Materials Register</h3>
+            <div class="toolbar">
+              <input
+                type="search"
+                id="inventorySearch"
+                class="search"
+                placeholder="Search code, material, category, location..."
+              >
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Material</th>
+                  <th>Category</th>
+                  <th>Available Stock</th>
+                  <th>Unit</th>
+                  <th>Reorder At</th>
+                  <th>Storage Location</th>
+                  <th>Stock Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody">
+                <tr>
+                  <td colspan="9" class="empty">No materials registered yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="transactionsPage" class="hidden">
+        <div class="page-heading">
+          <div>
+            <h2>Issuance &amp; Receiving</h2>
+            <p>Record warehouse receipts and project material issuances.</p>
+          </div>
+          <button class="btn btn-primary" id="addTransactionButton">
+            + New Transaction
+          </button>
+        </div>
+
+        <div id="transactionMessageArea"></div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <p>Receiving Documents</p>
+            <strong id="receiptDocumentCount">0</strong>
+          </div>
+          <div class="summary-card">
+            <p>Issuance Documents</p>
+            <strong id="issuanceDocumentCount">0</strong>
+          </div>
+          <div class="summary-card">
+            <p>Movement Documents</p>
+            <strong id="movementDocumentCount">0</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <h3>Movement Register</h3>
+            <div class="toolbar">
+              <input
+                type="search"
+                id="transactionSearch"
+                class="search"
+                placeholder="Search document, material, project, supplier..."
+              >
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Document</th>
+                  <th>Type</th>
+                  <th>PO#</th>
+                  <th>Date</th>
+                  <th>Project / Supplier</th>
+                  <th>Materials</th>
+                  <th>Truck</th>
+                  <th>Delivered By</th>
+                  <th>Recorded By</th>
+                  <th>Remarks</th>
+                  <th>Gatepass</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactionTableBody">
+                <tr>
+                  <td colspan="13" class="empty">No stock movements recorded yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="costsPage" class="hidden">
+        <div class="page-heading">
+          <div>
+            <h2>Cost Monitoring</h2>
+            <p>Net material costs by project site, including direct deliveries and pull-outs.</p>
+          </div>
+        </div>
+
+        <div class="summary cost-summary">
+          <div class="summary-card">
+            <p>Project Sites With Activity</p>
+            <strong id="costProjectCount">0</strong>
+          </div>
+          <div class="summary-card">
+            <p>Main WH-Site+</p>
+            <strong id="costWarehouseAmount">₱0.00</strong>
+          </div>
+          <div class="summary-card">
+            <p>Supplier-Site+</p>
+            <strong id="costDirectAmount">₱0.00</strong>
+          </div>
+          <div class="summary-card">
+            <p>Pull-out-</p>
+            <strong id="costPulloutAmount">₱0.00</strong>
+          </div>
+          <div class="summary-card">
+            <p>Total Site Spend (Net)</p>
+            <strong id="costTotalAmount">₱0.00</strong>
+          </div>
+        </div>
+        <p id="costDataNote" class="hidden" role="status"></p>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <h3>Cost by Project Site</h3>
+            <div class="toolbar">
+              <input
+                type="search"
+                id="costSearch"
+                class="search"
+                placeholder="Search project site..."
+              >
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Project Site</th>
+                  <th>Main WH-Site+</th>
+                  <th>Supplier-Site+</th>
+                  <th>Pull-out-</th>
+                  <th>Total Site Spend (Net)</th>
+                </tr>
+              </thead>
+              <tbody id="costTableBody">
+                <tr><td colspan="5" class="empty">No project costs to monitor yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <h3>Project Site Cost Graph</h3>
+          </div>
+          <div id="costChart" class="cost-chart" role="region" aria-label="Cost comparison by project site">
+            <p class="empty">No project costs to graph yet.</p>
+          </div>
+          <div class="cost-chart-legend" aria-hidden="true">
+            <span class="legend-warehouse">Main WH-Site+</span>
+            <span class="legend-direct">Supplier-Site+</span>
+            <span class="legend-pullout">Pull-out- (deducted)</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="otherPage" class="hidden">
+        <div class="page-heading">
+          <div>
+            <h2 id="otherPageTitle">Module</h2>
+            <p id="otherPageDescription"></p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            This module will be developed in a later step.
+            For now, the Project List module is our focus.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="projectModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="projectModalTitle">Add New Project</h3>
+        <button class="close-button" id="closeProjectModal" type="button">
+          &times;
+        </button>
+      </div>
+
+      <form id="projectForm">
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="projectCode">Project Code *</label>
+            <input
+              id="projectCode"
+              name="projectCode"
+              type="text"
+              placeholder="e.g. 24FK0101"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectName">Project Name *</label>
+            <input
+              id="projectName"
+              name="projectName"
+              type="text"
+              placeholder="e.g. Cabid-an Road"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectCategory">Category *</label>
+            <select id="projectCategory" name="projectCategory" required>
+              <option value="">Select category</option>
+              <option>Road</option>
+              <option>Bridge</option>
+              <option>Building</option>
+              <option>Flood Control</option>
+              <option>River Control</option>
+              <option>Drainage</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="projectLocation">Location *</label>
+            <input
+              id="projectLocation"
+              name="projectLocation"
+              type="text"
+              placeholder="Barangay / Municipality"
+              required
+            >
+          </div>
+
+          <div class="field field-full">
+            <label for="projectEngineer">Project Engineer *</label>
+            <input
+              id="projectEngineer"
+              name="projectEngineer"
+              type="text"
+              placeholder="Assigned project engineer"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectBudget">Approved Budget (₱) *</label>
+            <input
+              id="projectBudget"
+              name="projectBudget"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectStatus">Project Status *</label>
+            <select id="projectStatus" name="projectStatus" required>
+              <option value="Active">Active</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="projectStart">Start Date *</label>
+            <input
+              id="projectStart"
+              name="projectStart"
+              type="date"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="projectEnd">End Date *</label>
+            <input
+              id="projectEnd"
+              name="projectEnd"
+              type="date"
+              required
+            >
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn"
+            id="cancelProjectButton"
+          >
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-primary" id="saveProjectButton">
+            Save Project
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="inventoryModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="inventoryModalTitle">Add Material</h3>
+        <button class="close-button" id="closeInventoryModal" type="button">
+          &times;
+        </button>
+      </div>
+
+      <form id="inventoryForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="inventoryCode">Material Code *</label>
+            <input id="inventoryCode" name="inventoryCode" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="inventoryName">Material Name *</label>
+            <input id="inventoryName" name="inventoryName" type="text" required>
+          </div>
+
+          <div class="field">
+            <label for="inventoryCategory">Category *</label>
+            <select id="inventoryCategory" name="inventoryCategory" required>
+              <option value="">Select category</option>
+              <option>Cement</option>
+              <option>Aggregates</option>
+              <option>Steel</option>
+              <option>Lumber</option>
+              <option>Electrical</option>
+              <option>Plumbing</option>
+              <option>Equipment</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="inventoryUnit">Unit *</label>
+            <input id="inventoryUnit" name="inventoryUnit" type="text" placeholder="bag, pc, kg..." required>
+          </div>
+
+          <div class="field">
+            <label for="inventoryQuantity">Opening Stock *</label>
+            <input id="inventoryQuantity" name="inventoryQuantity" type="number" min="0" step="any" required>
+            <small id="inventoryOpeningStockNote">Starting balance before recorded receipts and issues.</small>
+          </div>
+
+          <div class="field">
+            <label for="inventoryReorder">Reorder Level *</label>
+            <input id="inventoryReorder" name="inventoryReorder" type="number" min="0" step="any" value="0" required>
+          </div>
+
+          <div class="field field-full">
+            <label for="inventoryLocation">Storage Location</label>
+            <input id="inventoryLocation" name="inventoryLocation" type="text" placeholder="Warehouse, shelf, or stockyard">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" id="cancelInventoryButton">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveInventoryButton">Save Material</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="transactionModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="transactionModalTitle">New Stock Transaction</h3>
+        <button class="close-button" id="closeTransactionModal" type="button">
+          &times;
+        </button>
+      </div>
+
+      <form id="transactionForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="transactionType">Transaction Type *</label>
+            <select id="transactionType" name="transactionType" required>
+              <option value="receipt">Warehouse Receiving</option>
+              <option value="issue">Main WH-Site+ (Warehouse to Project)</option>
+              <option value="direct_delivery">Supplier-Site+ (Direct to Project)</option>
+              <option value="pullout">Pull-out- (Return from Project)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="transactionDocumentNumber" id="transactionDocumentLabel">Delivery Receipt Number *</label>
+            <input id="transactionDocumentNumber" name="transactionDocumentNumber" type="text" required>
+          </div>
+          <div class="field">
+            <label for="transactionPurchaseOrder">PO# *</label>
+            <input id="transactionPurchaseOrder" name="transactionPurchaseOrder" type="text" placeholder="Purchase order number" required>
+          </div>
+          <div class="field">
+            <label for="transactionDate" id="transactionDateLabel">Date Received *</label>
+            <input id="transactionDate" name="transactionDate" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="transactionTruck">Truck *</label>
+            <input id="transactionTruck" name="transactionTruck" type="text" placeholder="Plate number or truck ID" required>
+          </div>
+          <div class="field">
+            <label for="transactionDeliveredBy">Delivered By *</label>
+            <input id="transactionDeliveredBy" name="transactionDeliveredBy" type="text" required>
+          </div>
+
+          <div class="field transaction-receipt-field transaction-direct-delivery-field hidden">
+            <label for="transactionSupplier">Supplier *</label>
+            <input id="transactionSupplier" name="transactionSupplier" type="text" required>
+          </div>
+          <div class="field transaction-receipt-field">
+            <label for="transactionReceivingReport">Receiving Report Reference</label>
+            <input id="transactionReceivingReport" name="transactionReceivingReport" type="text">
+          </div>
+          <div class="field transaction-receipt-field">
+            <label for="transactionWarehouse">Destination Warehouse *</label>
+            <input id="transactionWarehouse" name="transactionWarehouse" type="text" placeholder="Main warehouse" required>
+          </div>
+          <div class="field transaction-receipt-field">
+            <label for="transactionReceivedBy">Received By *</label>
+            <input id="transactionReceivedBy" name="transactionReceivedBy" type="text" required>
+          </div>
+
+          <div class="field transaction-issue-field hidden">
+            <label for="transactionProject">Project Site *</label>
+            <input id="transactionProject" name="transactionProject" type="search" list="transactionProjectOptions" placeholder="Type project code or name" autocomplete="off" required>
+            <datalist id="transactionProjectOptions"></datalist>
+          </div>
+          <div class="field transaction-issue-field hidden">
+            <label for="transactionIssuedBy">Issued By *</label>
+            <input id="transactionIssuedBy" name="transactionIssuedBy" type="text" required>
+          </div>
+          <div class="field transaction-issue-field hidden">
+            <label for="transactionIssueReceivedBy">Received By *</label>
+            <input id="transactionIssueReceivedBy" name="transactionIssueReceivedBy" type="text" required>
+          </div>
+          <div class="field transaction-issue-field hidden">
+            <label for="transactionDeliveryDate">Planned Delivery Date</label>
+            <input id="transactionDeliveryDate" name="transactionDeliveryDate" type="date">
+          </div>
+          <div class="field field-full transaction-issue-field hidden">
+            <label for="transactionPurpose">Purpose / Construction Activity *</label>
+            <input id="transactionPurpose" name="transactionPurpose" type="text" required>
+          </div>
+
+          <div class="field field-full">
+            <label for="transactionRemarks">Remarks</label>
+            <input id="transactionRemarks" name="transactionRemarks" type="text">
+          </div>
+
+          <div class="field field-full">
+            <div class="page-heading">
+              <h3>Material Items</h3>
+              <button type="button" class="btn" id="addTransactionLineButton">+ Add Item</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Material</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th id="transactionUnitPriceHeader">Unit Price</th>
+                    <th>Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="transactionLinesBody"></tbody>
+            </div>
+            <datalist id="transactionMaterialOptions"></datalist>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" id="cancelTransactionButton">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTransactionButton">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section id="gatepassPrint" class="gatepass-print hidden" aria-hidden="true"></section>
+
+  <script>
+    // Project records are stored in memory in this starter version.
+    let projects = JSON.parse(
+  localStorage.getItem("warehouseProjects") || "[]"
+);
+        let inventoryItems = JSON.parse(
+          localStorage.getItem("warehouseInventory") || "[]"
+        );
+    let warehouseTransactions = JSON.parse(
+      localStorage.getItem("warehouseTransactions") || "[]"
+    );
+
+    const money = amount =>
+      new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2
+      }).format(amount);
+
+    const getElement = id => document.getElementById(id);
+
+    // Main menu navigation
+    const menuButtons = document.querySelectorAll(".menu-button");
+
+    const otherModules = {
+      reports: {
+        title: "Reports",
+        description: "Review and export system reports."
+      }
+    };
+
+    function openModule(page) {
+      menuButtons.forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.page === page
+        );
+      });
+
+      getElement("dashboardPage").classList.add("hidden");
+      getElement("projectsPage").classList.add("hidden");
+      getElement("inventoryPage").classList.add("hidden");
+      getElement("transactionsPage").classList.add("hidden");
+      getElement("costsPage").classList.add("hidden");
+      getElement("otherPage").classList.add("hidden");
+
+      if (page === "dashboard") {
+        getElement("dashboardPage").classList.remove("hidden");
+        updateDashboard();
+        return;
+      }
+
+      if (page === "projects") {
+        getElement("projectsPage").classList.remove("hidden");
+        renderProjects();
+        return;
+      }
+
+      if (page === "inventory") {
+        getElement("inventoryPage").classList.remove("hidden");
+        renderInventory();
+        return;
+      }
+
+      if (page === "transactions") {
+        getElement("transactionsPage").classList.remove("hidden");
+        renderTransactions();
+        return;
+      }
+
+      if (page === "costs") {
+        getElement("costsPage").classList.remove("hidden");
+        renderCostMonitoring();
+        return;
+      }
+
+      const module = otherModules[page];
+
+      if (module) {
+        getElement("otherPage").classList.remove("hidden");
+        getElement("otherPageTitle").textContent = module.title;
+        getElement("otherPageDescription").textContent =
+          module.description;
+      }
+    }
+
+    menuButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        openModule(button.dataset.page);
+      });
+    });
+
+    // Track whether the form is adding or editing a project.
+    let editingProjectCode = null;
+
+    // Open the project form for a new or existing project.
+    function openProjectModal(project = null) {
+      getElement("projectForm").reset();
+      getElement("messageArea").innerHTML = "";
+      editingProjectCode = project ? project.code : null;
+      getElement("projectModalTitle").textContent = project
+        ? "Edit Project"
+        : "Add New Project";
+      getElement("saveProjectButton").textContent = project
+        ? "Save Changes"
+        : "Save Project";
+
+      if (project) {
+        getElement("projectCode").value = project.code;
+        getElement("projectName").value = project.name;
+        getElement("projectCategory").value = project.category;
+        getElement("projectLocation").value = project.location;
+        getElement("projectEngineer").value = project.engineer;
+        getElement("projectBudget").value = project.budget;
+        getElement("projectStart").value = project.start;
+        getElement("projectEnd").value = project.end;
+        getElement("projectStatus").value = project.status;
+      }
+
+      getElement("projectModal").classList.remove("hidden");
+    }
+
+    function closeProjectModal() {
+      getElement("projectModal").classList.add("hidden");
+      editingProjectCode = null;
+    }
+
+    getElement("addProjectButton").addEventListener(
+      "click",
+      () => openProjectModal()
+    );
+
+    getElement("closeProjectModal").addEventListener(
+      "click",
+      closeProjectModal
+    );
+
+    getElement("cancelProjectButton").addEventListener(
+      "click",
+      closeProjectModal
+    );
+
+    getElement("projectModal").addEventListener("click", event => {
+      if (event.target.id === "projectModal") {
+        closeProjectModal();
+      }
+    });
+
+    // Add a new project
+    getElement("projectForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const project = {
+        code: getElement("projectCode").value.trim(),
+        name: getElement("projectName").value.trim(),
+        category: getElement("projectCategory").value,
+        location: getElement("projectLocation").value.trim(),
+        engineer: getElement("projectEngineer").value.trim(),
+        budget: Number(getElement("projectBudget").value),
+        start: getElement("projectStart").value,
+        end: getElement("projectEnd").value,
+        status: getElement("projectStatus").value
+      };
+
+      // Project codes must be unique, except for the project being edited.
+      const duplicateCode = projects.some(
+        item =>
+          item.code.toLowerCase() === project.code.toLowerCase() &&
+          item.code !== editingProjectCode
+      );
+
+      if (duplicateCode) {
+        showMessage(
+          "This project code already exists. Please use a unique code."
+        );
+        return;
+      }
+
+      // Validate the budget
+      if (!Number.isFinite(project.budget) || project.budget < 0) {
+        showMessage("Please enter a valid approved budget.");
+        return;
+      }
+
+      // Validate the project dates
+      if (project.end < project.start) {
+        showMessage(
+          "The end date cannot be earlier than the start date."
+        );
+        return;
+      }
+
+      const wasEditing = editingProjectCode !== null;
+
+      if (wasEditing) {
+        const projectIndex = projects.findIndex(
+          item => item.code === editingProjectCode
+        );
+
+        if (projectIndex === -1) {
+          showMessage("This project could not be found. Please try again.");
+          return;
+        }
+
+        projects[projectIndex] = project;
+      } else {
+        projects.push(project);
+      }
+
+      localStorage.setItem("warehouseProjects", JSON.stringify(projects));
+
+      closeProjectModal();
+      getElement("projectSearch").value = "";
+      renderProjects();
+      updateDashboard();
+
+      showMessage(
+        wasEditing ? "Project updated successfully." : "Project added successfully.",
+        true
+      );
+    });
+
+    // Display feedback messages
+    function showMessage(message, success = false) {
+      const area = getElement("messageArea");
+
+      area.innerHTML = "";
+
+      const box = document.createElement("div");
+      box.className = "message";
+      box.style.background = success ? "#e1f7ed" : "#fff0f0";
+      box.style.color = success ? "#137447" : "#a12626";
+      box.textContent = message;
+
+      area.appendChild(box);
+
+      if (success) {
+        setTimeout(() => {
+          if (box.parentNode === area) {
+            area.removeChild(box);
+          }
+        }, 3000);
+      }
+    }
+
+    // Escape user-entered text before displaying it in the table
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    // Format dates for display
+    function formatDate(value) {
+      if (!value) return "—";
+
+      const parts = value.split("-");
+      return `${parts[1]}/${parts[2]}/${parts[0]}`;
+    }
+
+    // Display projects in the table
+    function renderProjects() {
+      const searchTerm =
+        getElement("projectSearch").value.trim().toLowerCase();
+
+      const filtered = projects.filter(project => {
+        const searchableText = [
+          project.code,
+          project.name,
+          project.category,
+          project.location,
+          project.engineer,
+          project.status
+        ].join(" ").toLowerCase();
+
+        return searchableText.includes(searchTerm);
+      });
+
+      const table = getElement("projectTableBody");
+
+      if (filtered.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="10" class="empty">
+              ${
+                projects.length === 0
+                  ? "No projects registered yet. Click Add Project to begin."
+                  : "No projects match your search."
+              }
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = filtered.map(project => {
+        let statusClass = "status-active";
+
+        if (project.status === "On Hold") {
+          statusClass = "status-hold";
+        } else if (project.status === "Completed") {
+          statusClass = "status-completed";
+        }
+
+        return `
+          <tr>
+            <td><strong>${escapeHTML(project.code)}</strong></td>
+            <td>${escapeHTML(project.name)}</td>
+            <td>${escapeHTML(project.category)}</td>
+            <td>${escapeHTML(project.location)}</td>
+            <td>${escapeHTML(project.engineer)}</td>
+            <td>${money(project.budget)}</td>
+            <td>${formatDate(project.start)}</td>
+            <td>${formatDate(project.end)}</td>
+            <td>
+              <span class="status ${statusClass}">
+                ${escapeHTML(project.status)}
+              </span>
+            </td>
+            <td>
+              <button type="button" class="btn" data-project-action="edit" data-project-code="${escapeHTML(project.code)}">Edit</button>
+              <button type="button" class="btn" data-project-action="delete" data-project-code="${escapeHTML(project.code)}">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Search projects as the user types
+    getElement("projectSearch").addEventListener("input", renderProjects);
+
+    // Handle Edit and Delete buttons in the project table.
+    getElement("projectTableBody").addEventListener("click", event => {
+      const button = event.target.closest("button[data-project-action]");
+      if (!button) return;
+
+      const projectCode = button.dataset.projectCode;
+      const project = projects.find(item => item.code === projectCode);
+      if (!project) {
+        showMessage("This project could not be found. Please refresh and try again.");
+        return;
+      }
+
+      if (button.dataset.projectAction === "edit") {
+        openProjectModal(project);
+        return;
+      }
+
+      if (button.dataset.projectAction === "delete") {
+        const confirmed = confirm(
+          `Delete project "${project.name}" (${project.code})? This cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        projects = projects.filter(item => item.code !== projectCode);
+        localStorage.setItem("warehouseProjects", JSON.stringify(projects));
+        renderProjects();
+        updateDashboard();
+        showMessage("Project deleted successfully.", true);
+      }
+    });
+
+    let editingInventoryCode = null;
+
+    function openInventoryModal(item = null) {
+      getElement("inventoryForm").reset();
+      getElement("inventoryMessageArea").innerHTML = "";
+      const hasMovements = item && warehouseTransactions.some(transaction =>
+        transaction.lines.some(line => line.materialCode === item.code)
+      );
+      getElement("inventoryCode").readOnly = Boolean(hasMovements);
+      getElement("inventoryQuantity").readOnly = Boolean(hasMovements);
+      getElement("inventoryOpeningStockNote").textContent = hasMovements
+        ? "Opening stock is locked after transactions have been recorded."
+        : "Starting balance before recorded receipts and issues.";
+      editingInventoryCode = item ? item.code : null;
+      getElement("inventoryModalTitle").textContent = item
+        ? "Edit Material"
+        : "Add Material";
+      getElement("saveInventoryButton").textContent = item
+        ? "Save Changes"
+        : "Save Material";
+
+      if (item) {
+        getElement("inventoryCode").value = item.code;
+        getElement("inventoryName").value = item.name;
+        getElement("inventoryCategory").value = item.category;
+        getElement("inventoryUnit").value = item.unit;
+        getElement("inventoryQuantity").value = item.quantity;
+        getElement("inventoryReorder").value = item.reorderLevel;
+        getElement("inventoryLocation").value = item.location;
+      }
+
+      getElement("inventoryModal").classList.remove("hidden");
+    }
+
+    function closeInventoryModal() {
+      getElement("inventoryModal").classList.add("hidden");
+      editingInventoryCode = null;
+    }
+
+    getElement("addInventoryButton").addEventListener(
+      "click",
+      () => openInventoryModal()
+    );
+    getElement("closeInventoryModal").addEventListener("click", closeInventoryModal);
+    getElement("cancelInventoryButton").addEventListener("click", closeInventoryModal);
+    getElement("inventoryModal").addEventListener("click", event => {
+      if (event.target.id === "inventoryModal") {
+        closeInventoryModal();
+      }
+    });
+
+    getElement("inventoryForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const item = {
+        code: getElement("inventoryCode").value.trim(),
+        name: getElement("inventoryName").value.trim(),
+        category: getElement("inventoryCategory").value,
+        unit: getElement("inventoryUnit").value.trim(),
+        quantity: Number(getElement("inventoryQuantity").value),
+        reorderLevel: Number(getElement("inventoryReorder").value),
+        location: getElement("inventoryLocation").value.trim()
+      };
+
+      const originalItem = inventoryItems.find(
+        existing => existing.code === editingInventoryCode
+      );
+      const hasMovements = originalItem && warehouseTransactions.some(transaction =>
+        transaction.lines.some(line => line.materialCode === originalItem.code)
+      );
+      if (
+        hasMovements &&
+        (item.code !== originalItem.code || item.quantity !== originalItem.quantity)
+      ) {
+        showInventoryMessage("Material code and opening stock cannot change after stock movements are recorded.");
+        return;
+      }
+
+      const duplicateCode = inventoryItems.some(
+        existing =>
+          existing.code.toLowerCase() === item.code.toLowerCase() &&
+          existing.code !== editingInventoryCode
+      );
+
+      if (duplicateCode) {
+        showInventoryMessage("This material code already exists. Please use a unique code.");
+        return;
+      }
+
+      if (
+        !Number.isFinite(item.quantity) || item.quantity < 0 ||
+        !Number.isFinite(item.reorderLevel) || item.reorderLevel < 0
+      ) {
+        showInventoryMessage("Quantity and reorder level must be zero or greater.");
+        return;
+      }
+
+      const wasEditing = editingInventoryCode !== null;
+      if (wasEditing) {
+        const itemIndex = inventoryItems.findIndex(
+          existing => existing.code === editingInventoryCode
+        );
+        if (itemIndex === -1) {
+          showInventoryMessage("This material could not be found. Please try again.");
+          return;
+        }
+        inventoryItems[itemIndex] = item;
+      } else {
+        inventoryItems.push(item);
+      }
+
+      localStorage.setItem("warehouseInventory", JSON.stringify(inventoryItems));
+      closeInventoryModal();
+      getElement("inventorySearch").value = "";
+      renderInventory();
+      showInventoryMessage(
+        wasEditing ? "Material updated successfully." : "Material added successfully.",
+        true
+      );
+    });
+
+    function showInventoryMessage(message, success = false) {
+      const area = getElement("inventoryMessageArea");
+      area.innerHTML = "";
+
+      const box = document.createElement("div");
+      box.className = "message";
+      box.style.background = success ? "#e1f7ed" : "#fff0f0";
+      box.style.color = success ? "#137447" : "#a12626";
+      box.textContent = message;
+      area.appendChild(box);
+
+      if (success) {
+        setTimeout(() => {
+          if (box.parentNode === area) area.removeChild(box);
+        }, 3000);
+      }
+    }
+
+    function getAvailableStock(materialCode, excludedTransactionKey = null) {
+      const material = inventoryItems.find(item => item.code === materialCode);
+      if (!material) return 0;
+
+      return warehouseTransactions.reduce((balance, transaction) => {
+        if (
+          transaction.cancelled ||
+          getTransactionKey(transaction) === excludedTransactionKey
+        ) {
+          return balance;
+        }
+        const direction = transaction.type === "receipt" || transaction.type === "pullout"
+          ? 1
+          : transaction.type === "issue" ? -1 : 0;
+        const movementQuantity = transaction.lines.reduce(
+          (total, line) => line.materialCode === materialCode
+            ? total + Number(line.quantity)
+            : total,
+          0
+        );
+        return balance + direction * movementQuantity;
+      }, Number(material.quantity) || 0);
+    }
+
+    function normalizePurchaseOrder(value) {
+      return value.trim().toLowerCase();
+    }
+
+    function getPurchaseOrderUnitCost(materialCode, purchaseOrderNumber, throughDate) {
+      const normalizedOrder = normalizePurchaseOrder(purchaseOrderNumber);
+      let receivedQuantity = 0;
+      let receivedAmount = 0;
+
+      warehouseTransactions.forEach(transaction => {
+        if (
+          transaction.cancelled ||
+          !["receipt", "pullout"].includes(transaction.type) ||
+          normalizePurchaseOrder(transaction.purchaseOrderNumber || "") !== normalizedOrder ||
+          (throughDate && transaction.date > throughDate)
+        ) {
+          return;
+        }
+
+        transaction.lines.forEach(line => {
+          const rawUnitPrice = transaction.type === "pullout"
+            ? line.unitCost
+            : line.unitPrice;
+          if (
+            line.materialCode !== materialCode ||
+            rawUnitPrice === null ||
+            rawUnitPrice === undefined ||
+            !Number.isFinite(Number(rawUnitPrice)) ||
+            !Number.isFinite(Number(line.quantity)) ||
+            Number(line.quantity) <= 0
+          ) {
+            return;
+          }
+          receivedQuantity += Number(line.quantity);
+          receivedAmount += line.lineAmount !== null &&
+            line.lineAmount !== undefined &&
+            Number.isFinite(Number(line.lineAmount))
+            ? Number(line.lineAmount)
+            : Number(rawUnitPrice) * Number(line.quantity);
+        });
+      });
+
+      return receivedQuantity > 0 ? receivedAmount / receivedQuantity : null;
+    }
+
+    function getAvailableStockForPurchaseOrder(
+      materialCode,
+      purchaseOrderNumber,
+      excludedTransactionKey = null
+    ) {
+      const normalizedOrder = normalizePurchaseOrder(purchaseOrderNumber);
+      let receivedQuantity = 0;
+      let issuedQuantity = 0;
+
+      warehouseTransactions.forEach(transaction => {
+        if (
+          transaction.cancelled ||
+          getTransactionKey(transaction) === excludedTransactionKey ||
+          normalizePurchaseOrder(transaction.purchaseOrderNumber || "") !== normalizedOrder
+        ) {
+          return;
+        }
+        transaction.lines.forEach(line => {
+          if (line.materialCode !== materialCode) return;
+          if (transaction.type === "receipt" || transaction.type === "pullout") {
+            receivedQuantity += Number(line.quantity) || 0;
+          } else if (transaction.type === "issue") {
+            issuedQuantity += Number(line.quantity) || 0;
+          }
+        });
+      });
+
+      return receivedQuantity - issuedQuantity;
+    }
+
+    function getAvailableProjectStock(
+      projectCode,
+      materialCode,
+      purchaseOrderNumber,
+      excludedTransactionKey = null
+    ) {
+      const normalizedOrder = normalizePurchaseOrder(purchaseOrderNumber || "");
+      return warehouseTransactions.reduce((balance, transaction) => {
+        if (
+          transaction.cancelled ||
+          getTransactionKey(transaction) === excludedTransactionKey ||
+          transaction.projectCode !== projectCode ||
+          normalizePurchaseOrder(transaction.purchaseOrderNumber || "") !== normalizedOrder
+        ) {
+          return balance;
+        }
+
+        const quantity = transaction.lines.reduce((total, line) =>
+          line.materialCode === materialCode
+            ? total + (Number(line.quantity) || 0)
+            : total,
+        0);
+        if (transaction.type === "issue" || transaction.type === "direct_delivery") {
+          return balance + quantity;
+        }
+        if (transaction.type === "pullout") {
+          return balance - quantity;
+        }
+        return balance;
+      }, 0);
+    }
+
+    function getProjectMaterialUnitCost(
+      projectCode,
+      materialCode,
+      purchaseOrderNumber,
+      excludedTransactionKey = null
+    ) {
+      const normalizedOrder = normalizePurchaseOrder(purchaseOrderNumber || "");
+      let availableQuantity = 0;
+      let availableAmount = 0;
+
+      warehouseTransactions.forEach(transaction => {
+        if (
+          transaction.cancelled ||
+          getTransactionKey(transaction) === excludedTransactionKey ||
+          transaction.projectCode !== projectCode ||
+          normalizePurchaseOrder(transaction.purchaseOrderNumber || "") !== normalizedOrder
+        ) {
+          return;
+        }
+
+        transaction.lines.forEach(line => {
+          if (line.materialCode !== materialCode) return;
+          const quantity = Number(line.quantity) || 0;
+          const rawUnitCost = transaction.type === "direct_delivery"
+            ? line.unitPrice
+            : line.unitCost;
+          const unitCost = rawUnitCost === null || rawUnitCost === undefined || rawUnitCost === ""
+            ? null
+            : Number(rawUnitCost);
+          const amount = line.lineAmount !== null &&
+            line.lineAmount !== undefined &&
+            Number.isFinite(Number(line.lineAmount))
+            ? Number(line.lineAmount)
+            : unitCost !== null && Number.isFinite(unitCost) ? quantity * unitCost : null;
+
+          if (transaction.type === "issue" || transaction.type === "direct_delivery") {
+            if (amount === null || !Number.isFinite(amount)) return;
+            availableQuantity += quantity;
+            availableAmount += amount;
+          } else if (transaction.type === "pullout" && amount !== null && Number.isFinite(amount)) {
+            availableQuantity -= quantity;
+            availableAmount -= amount;
+          }
+        });
+      });
+
+      return availableQuantity > 0 && availableAmount >= 0
+        ? availableAmount / availableQuantity
+        : null;
+    }
+
+    function getTransactionKey(transaction) {
+      return transaction.id || `${transaction.type}:${transaction.documentNumber}`;
+    }
+
+    function receiptHasActiveIssues(receipt) {
+      const receiptMaterials = new Set(receipt.lines.map(line => line.materialCode));
+      const purchaseOrderNumber = normalizePurchaseOrder(receipt.purchaseOrderNumber || "");
+      return warehouseTransactions.some(transaction =>
+        transaction !== receipt &&
+        !transaction.cancelled &&
+        transaction.type === "issue" &&
+        normalizePurchaseOrder(transaction.purchaseOrderNumber || "") === purchaseOrderNumber &&
+        transaction.lines.some(line => receiptMaterials.has(line.materialCode))
+      );
+    }
+
+    function getInventoryStatus(item) {
+      const availableStock = getAvailableStock(item.code);
+      if (availableStock === 0) {
+        return { label: "Out of stock", className: "status-out" };
+      }
+      if (availableStock <= item.reorderLevel) {
+        return { label: "Low stock", className: "status-low" };
+      }
+      return { label: "In stock", className: "status-active" };
+    }
+
+    function renderInventory() {
+      const searchTerm =
+        getElement("inventorySearch").value.trim().toLowerCase();
+      const filtered = inventoryItems.filter(item =>
+        [item.code, item.name, item.category, item.location]
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm)
+      );
+      const lowCount = inventoryItems.filter(item =>
+        getAvailableStock(item.code) > 0 &&
+        getAvailableStock(item.code) <= item.reorderLevel
+      ).length;
+      const outCount = inventoryItems.filter(item =>
+        getAvailableStock(item.code) === 0
+      ).length;
+
+      getElement("inventoryMaterialCount").textContent = inventoryItems.length;
+      getElement("inventoryLowCount").textContent = lowCount;
+      getElement("inventoryOutCount").textContent = outCount;
+
+      const table = getElement("inventoryTableBody");
+      if (filtered.length === 0) {
+        table.innerHTML = `
+          <tr>
+            <td colspan="9" class="empty">
+              ${inventoryItems.length === 0
+                ? "No materials registered yet. Click Add Material to begin."
+                : "No materials match your search."}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = filtered.map(item => {
+        const status = getInventoryStatus(item);
+        const quantity = new Intl.NumberFormat("en-PH", {
+          maximumFractionDigits: 2
+        }).format(getAvailableStock(item.code));
+        const reorderLevel = new Intl.NumberFormat("en-PH", {
+          maximumFractionDigits: 2
+        }).format(item.reorderLevel);
+
+        return `
+          <tr>
+            <td><strong>${escapeHTML(item.code)}</strong></td>
+            <td>${escapeHTML(item.name)}</td>
+            <td>${escapeHTML(item.category)}</td>
+            <td>${quantity}</td>
+            <td>${escapeHTML(item.unit)}</td>
+            <td>${reorderLevel}</td>
+            <td>${escapeHTML(item.location || "—")}</td>
+            <td><span class="status ${status.className}">${status.label}</span></td>
+            <td>
+              <button type="button" class="btn" data-inventory-action="edit" data-inventory-code="${escapeHTML(item.code)}">Edit</button>
+              <button type="button" class="btn" data-inventory-action="delete" data-inventory-code="${escapeHTML(item.code)}">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    getElement("inventorySearch").addEventListener("input", renderInventory);
+    getElement("inventoryTableBody").addEventListener("click", event => {
+      const button = event.target.closest("button[data-inventory-action]");
+      if (!button) return;
+
+      const code = button.dataset.inventoryCode;
+      const item = inventoryItems.find(existing => existing.code === code);
+      if (!item) {
+        showInventoryMessage("This material could not be found. Please refresh and try again.");
+        return;
+      }
+
+      if (button.dataset.inventoryAction === "edit") {
+        openInventoryModal(item);
+        return;
+      }
+
+      if (button.dataset.inventoryAction === "delete") {
+        const hasMovements = warehouseTransactions.some(transaction =>
+          transaction.lines.some(line => line.materialCode === code)
+        );
+        if (hasMovements) {
+          showInventoryMessage("This material has transaction history and cannot be deleted.");
+          return;
+        }
+        if (!confirm(`Delete material "${item.name}" (${item.code})? This cannot be undone.`)) {
+          return;
+        }
+        inventoryItems = inventoryItems.filter(existing => existing.code !== code);
+        localStorage.setItem("warehouseInventory", JSON.stringify(inventoryItems));
+        renderInventory();
+        showInventoryMessage("Material deleted successfully.", true);
+      }
+    });
+
+    function updateTransactionTypeFields() {
+      const type = getElement("transactionType").value;
+      const isReceipt = type === "receipt";
+      const isDirectDelivery = type === "direct_delivery";
+      const isPullout = type === "pullout";
+      const isProjectMovement = !isReceipt;
+      const transactionForm = getElement("transactionForm");
+      if (
+        transactionForm.dataset.linePriceType &&
+        transactionForm.dataset.linePriceType !== type
+      ) {
+        document.querySelectorAll(".transaction-unit-price").forEach(input => {
+          input.value = "";
+        });
+      }
+      transactionForm.dataset.linePriceType = type;
+      const receiptRequiredFields = [
+        "transactionSupplier",
+        "transactionWarehouse",
+        "transactionReceivedBy"
+      ];
+      const projectRequiredFields = [
+        "transactionProject",
+        "transactionIssuedBy",
+        "transactionIssueReceivedBy",
+        "transactionPurpose"
+      ];
+
+      document.querySelectorAll(".transaction-receipt-field").forEach(field => {
+        const isSupplierField = field.querySelector("#transactionSupplier");
+        const visible = isReceipt || (isDirectDelivery && Boolean(isSupplierField));
+        field.classList.toggle("hidden", !visible);
+        field.querySelectorAll("input, select").forEach(control => {
+          control.required = isReceipt && receiptRequiredFields.includes(control.id) ||
+            isDirectDelivery && control.id === "transactionSupplier";
+        });
+      });
+      document.querySelectorAll(".transaction-issue-field").forEach(field => {
+        field.classList.toggle("hidden", !isProjectMovement);
+        field.querySelectorAll("input, select").forEach(control => {
+          control.required = isProjectMovement && projectRequiredFields.includes(control.id);
+        });
+      });
+
+      getElement("transactionModalTitle").textContent = isReceipt
+        ? "Record Warehouse Receipt"
+        : isDirectDelivery
+          ? "Record Direct Supplier Delivery"
+          : isPullout ? "Record Project Pull-out" : "Record Project Issuance";
+      const editingTransaction = warehouseTransactions.find(item =>
+        getTransactionKey(item) === editingTransactionKey
+      );
+      getElement("transactionPurchaseOrder").required = !(
+        isProjectMovement &&
+        editingTransaction &&
+        !editingTransaction.purchaseOrderNumber
+      );
+      getElement("transactionDocumentLabel").textContent = isReceipt
+        ? "Delivery Receipt Number *"
+        : isPullout ? "Pull-out Document Number *"
+          : isDirectDelivery ? "Supplier Delivery Document Number *" : "Issuance Slip Number *";
+      getElement("transactionDocumentNumber").placeholder = isReceipt
+        ? "e.g. DR-2026-001"
+        : isPullout ? "e.g. PU-2026-001"
+          : isDirectDelivery ? "e.g. SD-2026-001" : "e.g. IS-2026-001";
+      getElement("transactionDateLabel").textContent = isReceipt
+        ? "Date Received *"
+        : isPullout ? "Date Pulled Out *"
+          : isDirectDelivery ? "Date Delivered *" : "Date Issued *";
+      getElement("transactionUnitPriceHeader").textContent =
+        isReceipt || isDirectDelivery ? "Unit Price" : "Unit Cost";
+      getElement("transactionIssuedBy").closest(".field").querySelector("label").textContent =
+        isPullout ? "Pulled Out By *"
+          : isDirectDelivery ? "Delivered to Site By *" : "Issued By *";
+      getElement("transactionIssueReceivedBy").closest(".field").querySelector("label").textContent =
+        isPullout ? "Received at Warehouse By *" : "Received By *";
+      document.querySelectorAll("#transactionLinesBody tr").forEach(updateTransactionLine);
+    }
+
+    function populateTransactionProjects() {
+      getElement("transactionProjectOptions").innerHTML = projects.flatMap(project =>
+        [project.code, project.name, projectOptionLabel(project)]
+      ).map(value => `<option value="${escapeHTML(value)}"></option>`).join("");
+    }
+
+    function projectOptionLabel(project) {
+      return `${project.code} - ${project.name}`;
+    }
+
+    function findProjectBySelection(value) {
+      const selection = value.trim().toLowerCase();
+      return projects.find(project =>
+        project.code.toLowerCase() === selection ||
+        project.name.toLowerCase() === selection ||
+        projectOptionLabel(project).toLowerCase() === selection
+      );
+    }
+
+    function populateTransactionMaterials() {
+      getElement("transactionMaterialOptions").innerHTML = inventoryItems.flatMap(item =>
+        [item.code, item.name, materialOptionLabel(item)]
+      ).map(value => `<option value="${escapeHTML(value)}"></option>`).join("");
+    }
+
+    function materialOptionLabel(item) {
+      return `${item.code} - ${item.name}`;
+    }
+
+    function findMaterialBySelection(value) {
+      const selection = value.trim().toLowerCase();
+      return inventoryItems.find(item =>
+        item.code.toLowerCase() === selection ||
+        item.name.toLowerCase() === selection ||
+        materialOptionLabel(item).toLowerCase() === selection
+      );
+    }
+
+    function addTransactionLine(existingLine = null) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>
+          <input class="transaction-material" type="search" list="transactionMaterialOptions" placeholder="Type material code or name" autocomplete="off" required>
+        </td>
+        <td><input class="transaction-quantity" type="number" min="0.000001" step="any" placeholder="0" required></td>
+        <td class="transaction-unit">—</td>
+        <td><input class="transaction-unit-price" type="number" min="0" step="0.01" placeholder="0.00" required></td>
+        <td class="transaction-amount">—</td>
+        <td><button type="button" class="btn" data-remove-transaction-line title="Remove item">Remove</button></td>
+      `;
+
+      const materialSelect = row.querySelector(".transaction-material");
+      materialSelect.addEventListener("input", () => updateTransactionLine(row));
+      materialSelect.addEventListener("change", () => updateTransactionLine(row));
+      row.querySelector(".transaction-quantity").addEventListener("input", () => {
+        updateTransactionLine(row);
+      });
+      row.querySelector(".transaction-unit-price").addEventListener("input", () => {
+        updateTransactionLine(row);
+      });
+      row.querySelector("[data-remove-transaction-line]").addEventListener("click", () => {
+        if (getElement("transactionLinesBody").rows.length > 1) {
+          row.remove();
+        } else {
+          row.querySelector(".transaction-material").value = "";
+          row.querySelector(".transaction-quantity").value = "";
+          row.querySelector(".transaction-unit").textContent = "—";
+        }
+      });
+      getElement("transactionLinesBody").appendChild(row);
+      if (existingLine) {
+        const material = inventoryItems.find(item => item.code === existingLine.materialCode);
+        row.querySelector(".transaction-material").value = material
+          ? materialOptionLabel(material)
+          : `${existingLine.materialCode} - ${existingLine.materialName}`;
+        row.querySelector(".transaction-quantity").value = existingLine.quantity;
+        if (
+          getElement("transactionType").value === "receipt" ||
+          getElement("transactionType").value === "direct_delivery"
+        ) {
+          row.querySelector(".transaction-unit-price").value = existingLine.unitPrice ?? "";
+        }
+      }
+      updateTransactionLine(row);
+    }
+
+    function updateTransactionLine(row) {
+      const material = findMaterialBySelection(
+        row.querySelector(".transaction-material").value
+      );
+      const quantity = Number(row.querySelector(".transaction-quantity").value);
+      const priceInput = row.querySelector(".transaction-unit-price");
+      const amountCell = row.querySelector(".transaction-amount");
+      const type = getElement("transactionType").value;
+      const isReceipt = type === "receipt";
+      const isDirectDelivery = type === "direct_delivery";
+      const isPullout = type === "pullout";
+      const purchaseOrderNumber = getElement("transactionPurchaseOrder").value.trim();
+      const date = getElement("transactionDate").value;
+
+      row.querySelector(".transaction-unit").textContent = material
+        ? material.unit
+        : "—";
+      priceInput.required = isReceipt || isDirectDelivery;
+      priceInput.readOnly = !(isReceipt || isDirectDelivery);
+
+      if (!isReceipt && !isDirectDelivery) {
+        const project = findProjectBySelection(getElement("transactionProject").value);
+        const unitCost = material && purchaseOrderNumber
+          ? isPullout && project
+            ? getProjectMaterialUnitCost(
+              project.code,
+              material.code,
+              purchaseOrderNumber,
+              editingTransactionKey
+            )
+            : getPurchaseOrderUnitCost(material.code, purchaseOrderNumber, date)
+          : null;
+        priceInput.value = unitCost === null ? "" : unitCost.toFixed(2);
+        priceInput.placeholder = unitCost === null
+          ? isPullout ? "No costed material at this site/PO" : "No PO price"
+          : "";
+        amountCell.textContent = unitCost !== null && quantity > 0
+          ? money(unitCost * quantity)
+          : "Uncosted";
+        return;
+      }
+
+      priceInput.placeholder = "0.00";
+      const unitPrice = priceInput.value.trim() === ""
+        ? null
+        : Number(priceInput.value);
+      amountCell.textContent =
+        unitPrice !== null && Number.isFinite(unitPrice) && quantity > 0
+          ? money(unitPrice * quantity)
+          : "—";
+    }
+
+    let editingTransactionKey = null;
+
+    function openTransactionModal(transaction = null) {
+      if (inventoryItems.length === 0) {
+        showTransactionMessage("Add materials to the Inventory register before recording stock movements.");
+        return;
+      }
+
+      if (transaction && transaction.cancelled) {
+        showTransactionMessage("Cancelled transactions cannot be edited.");
+        return;
+      }
+      if (transaction?.type === "receipt" && receiptHasActiveIssues(transaction)) {
+        showTransactionMessage("Cancel or edit the related issuances before changing this receipt.");
+        return;
+      }
+
+      getElement("transactionForm").reset();
+      getElement("transactionMessageArea").innerHTML = "";
+      getElement("transactionLinesBody").innerHTML = "";
+      getElement("transactionType").disabled = Boolean(transaction);
+      editingTransactionKey = transaction ? getTransactionKey(transaction) : null;
+      const transactionType = transaction ? transaction.type : "receipt";
+      getElement("transactionType").value = transactionType;
+      getElement("transactionDate").value = transaction
+        ? transaction.date
+        : new Date().toISOString().slice(0, 10);
+      getElement("transactionDocumentNumber").value = transaction
+        ? transaction.documentNumber
+        : "";
+      getElement("transactionPurchaseOrder").value = transaction
+        ? transaction.purchaseOrderNumber || ""
+        : "";
+      getElement("transactionTruck").value = transaction ? transaction.truck || "" : "";
+      getElement("transactionDeliveredBy").value = transaction
+        ? transaction.deliveredBy || ""
+        : "";
+      getElement("transactionWarehouse").value = "Main warehouse";
+      getElement("transactionForm").dataset.linePriceType = transactionType;
+      populateTransactionProjects();
+      populateTransactionMaterials();
+
+      if (transaction?.type === "receipt" || transaction?.type === "direct_delivery") {
+        getElement("transactionSupplier").value = transaction.supplier || "";
+        getElement("transactionReceivingReport").value = transaction.receivingReportReference || "";
+        getElement("transactionWarehouse").value = transaction.destinationWarehouse || "Main warehouse";
+        if (transaction.type === "receipt") {
+          getElement("transactionReceivedBy").value = transaction.receivedBy || "";
+        }
+      }
+      if (transaction && transaction.type !== "receipt") {
+        const project = projects.find(item => item.code === transaction.projectCode);
+        getElement("transactionProject").value = project
+          ? projectOptionLabel(project)
+          : `${transaction.projectCode || ""} - ${transaction.projectName || ""}`.trim();
+        getElement("transactionIssuedBy").value = transaction.issuedBy || "";
+        getElement("transactionIssueReceivedBy").value = transaction.receivedBy || "";
+        getElement("transactionDeliveryDate").value = transaction.deliveryDate || "";
+        getElement("transactionPurpose").value = transaction.purpose || "";
+      }
+      getElement("transactionRemarks").value = transaction ? transaction.remarks || "" : "";
+      getElement("transactionModalTitle").textContent = transaction
+        ? transactionType === "receipt" ? "Edit Warehouse Receipt"
+          : transactionType === "direct_delivery" ? "Edit Direct Supplier Delivery"
+            : transactionType === "pullout" ? "Edit Project Pull-out" : "Edit Project Issuance"
+        : "New Stock Transaction";
+      getElement("saveTransactionButton").textContent = transaction
+        ? "Save Changes"
+        : "Save Transaction";
+      updateTransactionTypeFields();
+      if (transaction) {
+        getElement("transactionModalTitle").textContent = transactionType === "receipt"
+          ? "Edit Warehouse Receipt"
+          : transactionType === "direct_delivery" ? "Edit Direct Supplier Delivery"
+            : transactionType === "pullout" ? "Edit Project Pull-out" : "Edit Project Issuance";
+      }
+      if (transaction) {
+        transaction.lines.forEach(line => addTransactionLine(line));
+      } else {
+        addTransactionLine();
+      }
+      getElement("transactionModal").classList.remove("hidden");
+    }
+
+    function closeTransactionModal() {
+      getElement("transactionModal").classList.add("hidden");
+      getElement("transactionType").disabled = false;
+      editingTransactionKey = null;
+    }
+
+    function showTransactionMessage(message, success = false) {
+      const area = getElement("transactionMessageArea");
+      area.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "message";
+      box.style.background = success ? "#e1f7ed" : "#fff0f0";
+      box.style.color = success ? "#137447" : "#a12626";
+      box.textContent = message;
+      area.appendChild(box);
+      if (success) {
+        setTimeout(() => {
+          if (box.parentNode === area) area.removeChild(box);
+        }, 3000);
+      }
+    }
+
+    getElement("addTransactionButton").addEventListener("click", () => openTransactionModal());
+    getElement("closeTransactionModal").addEventListener("click", closeTransactionModal);
+    getElement("cancelTransactionButton").addEventListener("click", closeTransactionModal);
+    getElement("transactionModal").addEventListener("click", event => {
+      if (event.target.id === "transactionModal") closeTransactionModal();
+    });
+    getElement("transactionType").addEventListener("change", updateTransactionTypeFields);
+    getElement("transactionPurchaseOrder").addEventListener("input", () => {
+      document.querySelectorAll("#transactionLinesBody tr").forEach(updateTransactionLine);
+    });
+    getElement("transactionDate").addEventListener("input", () => {
+      document.querySelectorAll("#transactionLinesBody tr").forEach(updateTransactionLine);
+    });
+    getElement("transactionProject").addEventListener("input", () => {
+      document.querySelectorAll("#transactionLinesBody tr").forEach(updateTransactionLine);
+    });
+    getElement("addTransactionLineButton").addEventListener("click", addTransactionLine);
+    getElement("transactionForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const type = getElement("transactionType").value;
+      const isReceipt = type === "receipt";
+      const isDirectDelivery = type === "direct_delivery";
+      const isPullout = type === "pullout";
+      const documentNumber = getElement("transactionDocumentNumber").value.trim();
+      const purchaseOrderNumber = getElement("transactionPurchaseOrder").value.trim();
+      const selectedProject = !isReceipt
+        ? findProjectBySelection(getElement("transactionProject").value)
+        : null;
+      const existingTransaction = warehouseTransactions.find(item =>
+        getTransactionKey(item) === editingTransactionKey
+      );
+      if (editingTransactionKey && !existingTransaction) {
+        showTransactionMessage("This transaction could not be found. Please refresh and try again.");
+        return;
+      }
+      const duplicateDocument = warehouseTransactions.some(transaction =>
+        transaction.type === type &&
+        transaction.documentNumber.toLowerCase() === documentNumber.toLowerCase() &&
+        transaction !== existingTransaction
+      );
+      if (duplicateDocument) {
+        showTransactionMessage("This document number already exists for this transaction type.");
+        return;
+      }
+
+      const lines = Array.from(getElement("transactionLinesBody").rows).map(row => {
+        const material = findMaterialBySelection(
+          row.querySelector(".transaction-material").value
+        );
+        const quantity = Number(row.querySelector(".transaction-quantity").value);
+        const unitPriceInput = row.querySelector(".transaction-unit-price");
+        const unitPrice = isReceipt || isDirectDelivery
+          ? Number(unitPriceInput.value)
+          : isPullout
+            ? material && selectedProject && purchaseOrderNumber
+              ? getProjectMaterialUnitCost(
+                selectedProject.code,
+                material.code,
+                purchaseOrderNumber,
+                editingTransactionKey
+              )
+              : null
+            : material
+              ? purchaseOrderNumber
+              ? getPurchaseOrderUnitCost(material.code, purchaseOrderNumber, getElement("transactionDate").value)
+              : existingTransaction?.lines.find(line => line.materialCode === material.code)?.unitCost ?? null
+            : null;
+        return {
+          materialCode: material ? material.code : "",
+          materialName: material ? material.name : "",
+          quantity,
+          unit: material ? material.unit : "",
+          unitPrice: isReceipt || isDirectDelivery ? unitPrice : null,
+          unitCost: !isReceipt && !isDirectDelivery ? unitPrice : null,
+          lineAmount: unitPrice !== null && Number.isFinite(unitPrice)
+            ? quantity * unitPrice
+            : null
+        };
+      });
+
+      if (lines.some(line =>
+        !line.materialCode || !Number.isFinite(line.quantity) || line.quantity <= 0
+      )) {
+        showTransactionMessage("Choose a listed material and enter a quantity greater than zero for every line.");
+        return;
+      }
+
+      if ((isReceipt || isDirectDelivery) && lines.some((line, index) =>
+        getElement("transactionLinesBody").rows[index]
+          .querySelector(".transaction-unit-price").value.trim() === "" ||
+        !Number.isFinite(line.unitPrice) || line.unitPrice < 0
+      )) {
+        showTransactionMessage("Enter a valid unit price for every received material.");
+        return;
+      }
+
+      if (!isReceipt && !purchaseOrderNumber && !existingTransaction) {
+        showTransactionMessage("Enter a PO# for this project material movement.");
+        return;
+      }
+
+      if (type === "issue") {
+        const quantitiesByMaterial = new Map();
+        lines.forEach(line => {
+          quantitiesByMaterial.set(
+            line.materialCode,
+            (quantitiesByMaterial.get(line.materialCode) || 0) + line.quantity
+          );
+        });
+        for (const [materialCode, requestedQuantity] of quantitiesByMaterial) {
+          const availableStock = getAvailableStock(materialCode, editingTransactionKey);
+          const availableForOrder = purchaseOrderNumber
+            ? getAvailableStockForPurchaseOrder(
+              materialCode,
+              purchaseOrderNumber,
+              editingTransactionKey
+            )
+            : availableStock;
+          const purchaseOrderUnitCost = purchaseOrderNumber
+            ? getPurchaseOrderUnitCost(
+              materialCode,
+              purchaseOrderNumber,
+              getElement("transactionDate").value
+            )
+            : null;
+          if (purchaseOrderNumber && purchaseOrderUnitCost === null) {
+            const material = inventoryItems.find(item => item.code === materialCode);
+            showTransactionMessage(
+              `No priced receipt for ${material.name} is recorded under PO# ${purchaseOrderNumber}.`
+            );
+            return;
+          }
+          if (requestedQuantity > availableStock || requestedQuantity > availableForOrder) {
+            const material = inventoryItems.find(item => item.code === materialCode);
+            showTransactionMessage(
+              `Cannot issue ${requestedQuantity} ${material.unit} of ${material.name} under PO# ${purchaseOrderNumber}; only ${Math.max(0, Math.min(availableStock, availableForOrder))} ${material.unit} is available.`
+            );
+            return;
+          }
+        }
+      }
+
+      if (!isReceipt && !selectedProject) {
+        showTransactionMessage("Select a valid project for this project material movement.");
+        return;
+      }
+
+      if (isPullout) {
+        const quantitiesByMaterial = new Map();
+        lines.forEach(line => {
+          quantitiesByMaterial.set(
+            line.materialCode,
+            (quantitiesByMaterial.get(line.materialCode) || 0) + line.quantity
+          );
+        });
+        for (const [materialCode, requestedQuantity] of quantitiesByMaterial) {
+          const availableQuantity = getAvailableProjectStock(
+            selectedProject.code,
+            materialCode,
+            purchaseOrderNumber,
+            editingTransactionKey
+          );
+          const unitCost = getProjectMaterialUnitCost(
+            selectedProject.code,
+            materialCode,
+            purchaseOrderNumber,
+            editingTransactionKey
+          );
+          const material = inventoryItems.find(item => item.code === materialCode);
+          if (requestedQuantity > availableQuantity) {
+            showTransactionMessage(
+              `Cannot pull out ${requestedQuantity} ${material.unit} of ${material.name}; only ${Math.max(0, availableQuantity)} ${material.unit} remains at this project for PO# ${purchaseOrderNumber}.`
+            );
+            return;
+          }
+          if (unitCost === null) {
+            showTransactionMessage(
+              `No costed issue or direct delivery is recorded for ${material.name} at this project under PO# ${purchaseOrderNumber}.`
+            );
+            return;
+          }
+        }
+      }
+
+      const transaction = {
+        ...(existingTransaction || {}),
+        id: existingTransaction?.id || `movement-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        type,
+        documentNumber,
+        purchaseOrderNumber,
+        date: getElement("transactionDate").value,
+        truck: getElement("transactionTruck").value.trim(),
+        deliveredBy: getElement("transactionDeliveredBy").value.trim(),
+        supplier: isReceipt || isDirectDelivery
+          ? getElement("transactionSupplier").value.trim()
+          : "",
+        receivingReportReference: isReceipt
+          ? getElement("transactionReceivingReport").value.trim()
+          : "",
+        destinationWarehouse: isReceipt
+          ? getElement("transactionWarehouse").value.trim()
+          : "",
+        projectCode: selectedProject ? selectedProject.code : "",
+        projectName: selectedProject ? selectedProject.name : "",
+        issuedBy: !isReceipt ? getElement("transactionIssuedBy").value.trim() : "",
+        receivedBy: isReceipt
+          ? getElement("transactionReceivedBy").value.trim()
+          : getElement("transactionIssueReceivedBy").value.trim(),
+        deliveryDate: type === "issue" ? getElement("transactionDeliveryDate").value : "",
+        purpose: !isReceipt ? getElement("transactionPurpose").value.trim() : "",
+        remarks: getElement("transactionRemarks").value.trim(),
+        lines
+      };
+
+      const wasEditing = Boolean(existingTransaction);
+      if (existingTransaction) {
+        const { revisionHistory = [], ...previousVersion } = existingTransaction;
+        transaction.revisionHistory = [
+          ...revisionHistory,
+          { editedAt: new Date().toISOString(), record: previousVersion }
+        ];
+        const transactionIndex = warehouseTransactions.indexOf(existingTransaction);
+        warehouseTransactions[transactionIndex] = transaction;
+      } else {
+        warehouseTransactions.push(transaction);
+      }
+      localStorage.setItem("warehouseTransactions", JSON.stringify(warehouseTransactions));
+      closeTransactionModal();
+      renderTransactions();
+      renderInventory();
+      renderCostMonitoring();
+      showTransactionMessage(
+        wasEditing
+          ? "Transaction updated and stock recalculated."
+          : isReceipt ? "Receipt recorded and stock updated."
+            : type === "issue" ? "Main WH-Site+ issuance recorded."
+              : isDirectDelivery ? "Supplier-Site+ delivery recorded."
+                : isPullout ? "Project pull-out recorded; stock returned and site cost reduced."
+                  : "Transaction recorded.",
+        true
+      );
+    });
+
+    function renderTransactions() {
+      const activeTransactions = warehouseTransactions.filter(item => !item.cancelled);
+      const receiptCount = activeTransactions.filter(item => item.type === "receipt").length;
+      const issuanceCount = activeTransactions.filter(item => item.type === "issue").length;
+      getElement("receiptDocumentCount").textContent = receiptCount;
+      getElement("issuanceDocumentCount").textContent = issuanceCount;
+      getElement("movementDocumentCount").textContent = activeTransactions.length;
+
+      const searchTerm = getElement("transactionSearch").value.trim().toLowerCase();
+      const filtered = warehouseTransactions
+        .slice()
+        .sort((left, right) => right.date.localeCompare(left.date))
+        .filter(transaction => {
+          const lineText = transaction.lines
+            .map(line => `${line.materialCode} ${line.materialName}`)
+            .join(" ");
+          return [
+            transaction.documentNumber,
+            transaction.purchaseOrderNumber,
+            transaction.projectCode,
+            transaction.projectName,
+            transaction.supplier,
+            lineText
+          ].join(" ").toLowerCase().includes(searchTerm);
+        });
+
+      const table = getElement("transactionTableBody");
+      if (filtered.length === 0) {
+        table.innerHTML = `
+          <tr><td colspan="13" class="empty">${warehouseTransactions.length === 0
+            ? "No stock movements recorded yet. Click New Transaction to begin."
+            : "No transactions match your search."}</td></tr>
+        `;
+        return;
+      }
+
+      table.innerHTML = filtered.map(transaction => {
+        const isReceipt = transaction.type === "receipt";
+        const isCancelled = Boolean(transaction.cancelled);
+        const materialSummary = transaction.lines.map(line => {
+          const quantity = new Intl.NumberFormat("en-PH", {
+            maximumFractionDigits: 2
+          }).format(line.quantity);
+          const lineUnitPrice = transaction.type === "receipt" ||
+            transaction.type === "direct_delivery"
+            ? line.unitPrice
+            : line.unitCost;
+          const priceText = lineUnitPrice !== null &&
+            lineUnitPrice !== undefined &&
+            Number.isFinite(Number(lineUnitPrice))
+            ? money(lineUnitPrice)
+            : "Uncosted";
+          const amountText = line.lineAmount !== null &&
+            line.lineAmount !== undefined &&
+            Number.isFinite(Number(line.lineAmount))
+            ? money(line.lineAmount)
+            : "Uncosted";
+          return `${escapeHTML(line.materialName)}: ${quantity} ${escapeHTML(line.unit)} @ ${priceText} = ${amountText}`;
+        }).join("<br>");
+        return `
+          <tr>
+            <td><strong>${escapeHTML(transaction.documentNumber)}</strong></td>
+            <td>${isReceipt ? "Warehouse Receiving"
+              : transaction.type === "direct_delivery" ? "Supplier-Site+"
+                : transaction.type === "pullout" ? "Pull-out-"
+                  : "Main WH-Site+"}</td>
+            <td>${escapeHTML(transaction.purchaseOrderNumber || "—")}</td>
+            <td>${formatDate(transaction.date)}</td>
+            <td>${escapeHTML(isReceipt
+              ? transaction.supplier
+              : transaction.type === "direct_delivery"
+                ? `${transaction.supplier} → ${transaction.projectCode} - ${transaction.projectName}`
+                : `${transaction.projectCode} - ${transaction.projectName}`)}</td>
+            <td>${materialSummary}</td>
+            <td>${escapeHTML(transaction.truck || "—")}</td>
+            <td>${escapeHTML(transaction.deliveredBy || "—")}</td>
+            <td>${escapeHTML(isReceipt
+              ? transaction.receivedBy
+              : transaction.issuedBy)}</td>
+            <td>${escapeHTML(transaction.remarks || "—")}</td>
+            <td>${isReceipt || isCancelled
+              ? "—"
+              : `<button type="button" class="btn" data-print-gatepass data-gatepass-document="${escapeHTML(transaction.documentNumber)}">Print</button>`}</td>
+            <td><span class="status ${isCancelled ? "status-completed" : "status-active"}">${isCancelled ? "Cancelled" : "Active"}</span></td>
+            <td>
+              <select data-transaction-action data-transaction-key="${escapeHTML(getTransactionKey(transaction))}" aria-label="Actions for ${escapeHTML(transaction.documentNumber)}" ${isCancelled ? "disabled" : ""}>
+                <option value="">Actions</option>
+                <option value="edit">Edit</option>
+                <option value="delete">Delete</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    getElement("transactionSearch").addEventListener("input", renderTransactions);
+    getElement("transactionTableBody").addEventListener("change", event => {
+      const select = event.target.closest("select[data-transaction-action]");
+      if (!select || !select.value) return;
+
+      const transaction = warehouseTransactions.find(item =>
+        getTransactionKey(item) === select.dataset.transactionKey
+      );
+      const action = select.value;
+      select.value = "";
+      if (!transaction || transaction.cancelled) return;
+
+      if (action === "edit") {
+        openTransactionModal(transaction);
+      } else if (action === "delete") {
+        cancelTransaction(transaction);
+      }
+    });
+
+    function cancelTransaction(transaction) {
+      if (transaction.type === "receipt" && receiptHasActiveIssues(transaction)) {
+        showTransactionMessage("Cancel or edit the related issuances before deleting this receipt.");
+        return;
+      }
+
+      const documentType = transaction.type === "receipt"
+        ? "warehouse receipt"
+        : transaction.type === "direct_delivery" ? "Supplier-Site+ delivery"
+          : transaction.type === "pullout" ? "project pull-out"
+            : "Main WH-Site+ issuance";
+      const confirmed = confirm(
+        `Delete ${documentType} "${transaction.documentNumber}"? Its stock effect will be reversed. The cancelled record will remain in history for audit.`
+      );
+      if (!confirmed) return;
+
+      transaction.cancelled = true;
+      transaction.cancelledAt = new Date().toISOString();
+      localStorage.setItem("warehouseTransactions", JSON.stringify(warehouseTransactions));
+      renderTransactions();
+      renderInventory();
+      renderCostMonitoring();
+      showTransactionMessage("Transaction cancelled; stock and project costs were recalculated.", true);
+    }
+
+    getElement("transactionTableBody").addEventListener("click", event => {
+      const button = event.target.closest("button[data-print-gatepass]");
+      if (!button) return;
+
+      const transaction = warehouseTransactions.find(item =>
+        item.type === "issue" &&
+        !item.cancelled &&
+        item.documentNumber === button.dataset.gatepassDocument
+      );
+      if (!transaction) {
+        showTransactionMessage("This issuance record could not be found for printing.");
+        return;
+      }
+
+      renderGatepass(transaction);
+      window.print();
+    });
+
+    window.addEventListener("afterprint", () => {
+      getElement("gatepassPrint").classList.add("hidden");
+      getElement("gatepassPrint").setAttribute("aria-hidden", "true");
+    });
+
+    function renderGatepass(transaction) {
+      const gatepass = getElement("gatepassPrint");
+      const lineRows = transaction.lines.map((line, index) => {
+        const quantity = new Intl.NumberFormat("en-PH", {
+          maximumFractionDigits: 2
+        }).format(line.quantity);
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHTML(line.materialCode)}</td>
+            <td>${escapeHTML(line.materialName)}</td>
+            <td>${quantity}</td>
+            <td>${escapeHTML(line.unit)}</td>
+          </tr>
+        `;
+      }).join("");
+
+      gatepass.innerHTML = `
+        <div class="gatepass-header">
+          <div>
+            <h1>PRIMECRETE</h1>
+            <p>Construction Warehouse</p>
+          </div>
+          <div>
+            <h1>INTERNAL GATEPASS</h1>
+            <p><strong>Gatepass / IS No.:</strong> ${escapeHTML(transaction.documentNumber)}</p>
+          </div>
+        </div>
+        <div class="gatepass-meta">
+          <p><strong>Date:</strong> ${formatDate(transaction.date)}</p>
+          <p><strong>PO#:</strong> ${escapeHTML(transaction.purchaseOrderNumber || "—")}</p>
+          <p><strong>Project Site:</strong> ${escapeHTML(`${transaction.projectCode} - ${transaction.projectName}`)}</p>
+          <p><strong>Truck:</strong> ${escapeHTML(transaction.truck || "—")}</p>
+          <p><strong>Delivered By:</strong> ${escapeHTML(transaction.deliveredBy || "—")}</p>
+          <p><strong>Purpose:</strong> ${escapeHTML(transaction.purpose || "—")}</p>
+        </div>
+        <table class="gatepass-table">
+          <thead>
+            <tr><th>No.</th><th>Material Code</th><th>Description</th><th>Quantity</th><th>Unit</th></tr>
+          </thead>
+          <tbody>${lineRows}</tbody>
+        </table>
+        <p class="gatepass-notes"><strong>Remarks:</strong> ${escapeHTML(transaction.remarks || "—")}</p>
+        <div class="gatepass-signatures">
+          <div class="gatepass-signature">
+            <p>${escapeHTML(transaction.issuedBy || "")}</p>
+            <strong>Issued By</strong>
+          </div>
+          <div class="gatepass-signature">
+            <p>${escapeHTML(transaction.deliveredBy || "")}</p>
+            <strong>Delivered By</strong>
+          </div>
+          <div class="gatepass-signature">
+            <p>${escapeHTML(transaction.receivedBy || "")}</p>
+            <strong>Received By</strong>
+          </div>
+        </div>
+      `;
+      gatepass.classList.remove("hidden");
+      gatepass.setAttribute("aria-hidden", "false");
+    }
+
+    function renderCostMonitoring() {
+      const searchTerm = getElement("costSearch").value.trim().toLowerCase();
+      const projectCosts = new Map();
+      let totalWarehouseCost = 0;
+      let totalDirectCost = 0;
+      let totalPulloutCost = 0;
+      let uncostedLineCount = 0;
+
+      warehouseTransactions
+        .filter(transaction =>
+          !transaction.cancelled &&
+          ["issue", "direct_delivery", "pullout"].includes(transaction.type)
+        )
+        .forEach(transaction => {
+          if (!transaction.projectCode) return;
+
+          let site = projectCosts.get(transaction.projectCode);
+          if (!site) {
+            site = {
+              projectCode: transaction.projectCode,
+              projectName: transaction.projectName || "",
+              warehouseCost: 0,
+              directCost: 0,
+              pulloutCost: 0
+            };
+            projectCosts.set(transaction.projectCode, site);
+          }
+
+          transaction.lines.forEach(line => {
+            const quantity = Number(line.quantity) || 0;
+            const rawUnitCost = transaction.type === "direct_delivery"
+              ? line.unitPrice
+              : line.unitCost;
+            const unitCost = rawUnitCost === null || rawUnitCost === undefined || rawUnitCost === ""
+              ? null
+              : Number(rawUnitCost);
+            const amount = line.lineAmount !== null &&
+              line.lineAmount !== undefined &&
+              Number.isFinite(Number(line.lineAmount))
+              ? Number(line.lineAmount)
+              : unitCost !== null && Number.isFinite(unitCost)
+                ? quantity * unitCost
+                : null;
+            if (amount === null || !Number.isFinite(amount)) {
+              uncostedLineCount += 1;
+              return;
+            }
+
+            if (transaction.type === "issue") {
+              site.warehouseCost += amount;
+              totalWarehouseCost += amount;
+            } else if (transaction.type === "direct_delivery") {
+              site.directCost += amount;
+              totalDirectCost += amount;
+            } else {
+              site.pulloutCost += amount;
+              totalPulloutCost += amount;
+            }
+          });
+        });
+
+      const sites = Array.from(projectCosts.values()).map(site => ({
+        ...site,
+        netCost: site.warehouseCost + site.directCost - site.pulloutCost
+      }));
+      const totalCost = totalWarehouseCost + totalDirectCost - totalPulloutCost;
+      getElement("costProjectCount").textContent = sites.length;
+      getElement("costWarehouseAmount").textContent = money(totalWarehouseCost);
+      getElement("costDirectAmount").textContent = money(totalDirectCost);
+      getElement("costPulloutAmount").textContent = money(-totalPulloutCost);
+      getElement("costTotalAmount").textContent = money(totalCost);
+
+      const costNote = getElement("costDataNote");
+      costNote.textContent = uncostedLineCount
+        ? `${uncostedLineCount} material line${uncostedLineCount === 1 ? "" : "s"} have no recorded cost; those amounts are excluded from the totals.`
+        : "";
+      costNote.classList.toggle("hidden", uncostedLineCount === 0);
+
+      const filtered = sites
+        .filter(site =>
+          `${site.projectCode} ${site.projectName}`.toLowerCase().includes(searchTerm)
+        )
+        .sort((left, right) =>
+          `${left.projectCode} ${left.projectName}`.localeCompare(
+            `${right.projectCode} ${right.projectName}`
+          )
+        );
+      const table = getElement("costTableBody");
+
+      if (filtered.length === 0) {
+        table.innerHTML = `
+          <tr><td colspan="5" class="empty">${sites.length === 0
+            ? "No project costs to monitor yet."
+            : "No project sites match your search."}</td></tr>
+        `;
+        getElement("costChart").innerHTML = `<p class="empty">${sites.length === 0
+          ? "No project costs to graph yet."
+          : "No project sites match your search."}</p>`;
+        return;
+      }
+
+      table.innerHTML = filtered.map(site => {
+        return `
+          <tr>
+            <td>${escapeHTML(`${site.projectCode} - ${site.projectName}`)}</td>
+            <td>${money(site.warehouseCost)}</td>
+            <td>${money(site.directCost)}</td>
+            <td>${money(-site.pulloutCost)}</td>
+            <td><strong>${money(site.netCost)}</strong></td>
+          </tr>
+        `;
+      }).join("");
+
+      const maxGrossCost = Math.max(
+        ...filtered.map(site => site.warehouseCost + site.directCost + site.pulloutCost),
+        1
+      );
+      getElement("costChart").innerHTML = filtered.map(site => {
+        const warehouseWidth = site.warehouseCost / maxGrossCost * 100;
+        const directWidth = site.directCost / maxGrossCost * 100;
+        const pulloutWidth = site.pulloutCost / maxGrossCost * 100;
+        return `
+          <div class="cost-chart-row">
+            <div class="cost-chart-title">${escapeHTML(`${site.projectCode} - ${site.projectName}`)}</div>
+            <div class="cost-chart-bar" aria-hidden="true">
+              <span class="cost-chart-segment cost-chart-warehouse" style="width:${warehouseWidth}%"></span>
+              <span class="cost-chart-segment cost-chart-direct" style="width:${directWidth}%"></span>
+              <span class="cost-chart-segment cost-chart-pullout" style="width:${pulloutWidth}%"></span>
+            </div>
+            <small>
+              Main WH-Site+ ${money(site.warehouseCost)} ·
+              Supplier-Site+ ${money(site.directCost)} ·
+              Pull-out- ${money(-site.pulloutCost)} ·
+              Net ${money(site.netCost)}
+            </small>
+          </div>
+        `;
+      }).join("");
+    }
+
+    getElement("costSearch").addEventListener("input", renderCostMonitoring);
+
+    // Update the dashboard figures
+    function updateDashboard() {
+      getElement("dashboardProjectCount").textContent = projects.length;
+
+      getElement("dashboardActiveCount").textContent =
+        projects.filter(project => project.status === "Active").length;
+
+      const totalBudget = projects.reduce(
+        (total, project) => total + project.budget,
+        0
+      );
+
+      getElement("dashboardBudget").textContent = money(totalBudget);
+    }
+
+    // Initial display
+    updateDashboard();
+  </script>
+
+</body>
+</html>
